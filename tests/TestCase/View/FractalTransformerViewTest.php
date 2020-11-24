@@ -22,7 +22,7 @@ class FractalTransformerViewTest extends TestCase
 
     public $fixtures = ['plugin.FractalTransformerView.articles', 'plugin.FractalTransformerView.authors'];
 
-    public function setUp()
+    public function setUp() : void
     {
         parent::setUp();
         Configure::write('debug', false);
@@ -69,7 +69,7 @@ class FractalTransformerViewTest extends TestCase
 
     public function testGetTransformerClassFromEntity()
     {
-        $entity = $this->Articles->newEntity();
+        $entity = $this->Articles->newEntity([]);
 
         $view = new FractalTransformerView();
 
@@ -81,7 +81,7 @@ class FractalTransformerViewTest extends TestCase
 
     public function testGetTransformerClassFromEntitiesArray()
     {
-        $entities = [$this->Articles->newEntity()];
+        $entities = [$this->Articles->newEntity([])];
 
         $view = new FractalTransformerView();
 
@@ -93,7 +93,7 @@ class FractalTransformerViewTest extends TestCase
 
     public function testGetTransformerClassFromEntityWithNoTransformer()
     {
-        $entity = $this->Authors->newEntity();
+        $entity = $this->Authors->newEntity([]);
 
         $view = new FractalTransformerView();
 
@@ -125,7 +125,7 @@ class FractalTransformerViewTest extends TestCase
 
     public function testGetTransformerByVar()
     {
-        $entity = $this->Articles->newEntity();
+        $entity = $this->Articles->newEntity([]);
 
         $view = new FractalTransformerView();
 
@@ -137,7 +137,7 @@ class FractalTransformerViewTest extends TestCase
 
     public function testGetTransformerByVarName()
     {
-        $entity = $this->Authors->newEntity();
+        $entity = $this->Authors->newEntity([]);
 
         $view = new FractalTransformerView();
         $view->set('_transform', ['author' => '\FractalTransformerView\Test\App\Model\Transformer\CustomAuthorTransformer']);
@@ -150,7 +150,7 @@ class FractalTransformerViewTest extends TestCase
 
     public function testGetNoTransformerByVarName()
     {
-        $entity = $this->Articles->newEntity();
+        $entity = $this->Articles->newEntity([]);
 
         $view = new FractalTransformerView();
         $view->set('_transform', ['article' => false]);
@@ -161,30 +161,28 @@ class FractalTransformerViewTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException Exception
-     * @expectedExceptionMessage Invalid Transformer class: NotExistingTransformer
-     */
     public function testGetTransformerByVarNameNotFound()
     {
-        $entity = $this->Articles->newEntity();
+        $entity = $this->Articles->newEntity([]);
 
         $view = new FractalTransformerView();
         $view->set('_transform', ['article' => 'NotExistingTransformer']);
 
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Invalid Transformer class: NotExistingTransformer');
+
         $this->protectedMethodCall($view, 'getTransformer', [$entity, 'article']);
     }
 
-    /**
-     * @expectedException Exception
-     * @expectedExceptionMessage Transformer class not instance of TransformerAbstract: \FractalTransformerView\Test\App\Model\Table\ArticlesTable
-     */
     public function testGetTransformerByVarNameInvalid()
     {
-        $entity = $this->Articles->newEntity();
+        $entity = $this->Articles->newEntity([]);
 
         $view = new FractalTransformerView();
         $view->set('_transform', ['article' => '\FractalTransformerView\Test\App\Model\Table\ArticlesTable']);
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Transformer class not instance of TransformerAbstract: \FractalTransformerView\Test\App\Model\Table\ArticlesTable');
 
         $this->protectedMethodCall($view, 'getTransformer', [$entity, 'article']);
     }
@@ -241,10 +239,6 @@ class FractalTransformerViewTest extends TestCase
         );
     }
 
-    /**
-     * @expectedException Exception
-     * @expectedExceptionMessage Unserializable variable
-     */
     public function testTransformInvalid()
     {
         $serializer = new ArraySerializer();
@@ -253,6 +247,9 @@ class FractalTransformerViewTest extends TestCase
 
         $view = new FractalTransformerView();
         $view->set('_transform', ['std' => '\FractalTransformerView\Test\App\Model\Transformer\CustomAuthorTransformer']);
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Unserializable variable');
 
         $this->protectedMethodCall($view, 'transform', [$manager, new stdClass(), 'std']);
     }
@@ -264,14 +261,14 @@ class FractalTransformerViewTest extends TestCase
 
         $view = new FractalTransformerView();
         $view->set(compact('article', 'author'));
-        $view->set('_serialize', ['article', 'author']);
+        $view->set('serialize', ['article', 'author']);
 
         $this->assertEquals(
             [
                 'article' => ['title' => 'First Article'],
                 'author' => $author
             ],
-            $this->protectedMethodCall($view, '_dataToSerialize')
+            $this->protectedMethodCall($view, '_dataToSerialize', [['article', 'author']])
         );
     }
 
@@ -281,7 +278,7 @@ class FractalTransformerViewTest extends TestCase
 
         $view = new FractalTransformerView();
         $view->set(compact('article'));
-        $view->set('_serialize', 'article');
+        $view->set('serialize', 'article');
 
         $this->assertEquals(
             ['title' => 'First Article'],

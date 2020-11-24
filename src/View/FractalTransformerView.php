@@ -4,8 +4,8 @@ namespace FractalTransformerView\View;
 use Cake\Core\Configure;
 use Cake\Datasource\EntityInterface;
 use Cake\Event\EventManager;
-use Cake\Network\Request;
-use Cake\Network\Response;
+use Cake\Http\Client\Request;
+use Cake\Http\Client\Response;
 use Cake\ORM\Query;
 use Cake\ORM\ResultSet;
 use Cake\Utility\Hash;
@@ -30,10 +30,9 @@ class FractalTransformerView extends JsonView
 
     /**
      * Constructor
-     *
-     * @param \Cake\Network\Request $request Request instance.
-     * @param \Cake\Network\Response $response Response instance.
-     * @param \Cake\Event\EventManager $eventManager EventManager instance.
+     * @param \Cake\Http\Client\Request|null $request
+     * @param \Cake\Http\Client\Response|null $response
+     * @param \Cake\Event\EventManager|null $eventManager
      * @param array $viewOptions An array of view options
      */
     public function __construct(
@@ -48,9 +47,9 @@ class FractalTransformerView extends JsonView
 
         parent::__construct($request, $response, $eventManager, $viewOptions);
 
-        $this->_specialVars[] = '_transform';
-        $this->_specialVars[] = '_resourceKey';
-        $this->_specialVars[] = '_includes';
+        $this->_defaultConfig[] = '_transform';
+        $this->_defaultConfig[] = '_resourceKey';
+        $this->_defaultConfig[] = '_includes';
     }
 
     /**
@@ -88,7 +87,7 @@ class FractalTransformerView extends JsonView
     {
         $entity = null;
         if ($var instanceof Query) {
-            $entity = $var->repository()->newEntity();
+            $entity = $var->getRepository()->newEntity([]);
         } elseif ($var instanceof ResultSet) {
             $entity = $var->first();
         } elseif ($var instanceof EntityInterface) {
