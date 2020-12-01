@@ -1,11 +1,10 @@
 <?php
 namespace FractalTransformerView\View;
 
-use Cake\Core\Configure;
 use Cake\Datasource\EntityInterface;
 use Cake\Event\EventManager;
-use Cake\Http\Client\Request;
-use Cake\Http\Client\Response;
+use Cake\Http\Response;
+use Cake\Http\ServerRequest;
 use Cake\ORM\Query;
 use Cake\ORM\ResultSet;
 use Cake\Utility\Hash;
@@ -30,13 +29,13 @@ class FractalTransformerView extends JsonView
 
     /**
      * Constructor
-     * @param \Cake\Http\Client\Request|null $request
-     * @param \Cake\Http\Client\Response|null $response
+     * @param \Cake\Http\ServerRequest|null $request
+     * @param \Cake\Http\Response|null $response
      * @param \Cake\Event\EventManager|null $eventManager
      * @param array $viewOptions An array of view options
      */
     public function __construct(
-        Request $request = null,
+        ServerRequest $request = null,
         Response $response = null,
         EventManager $eventManager = null,
         array $viewOptions = []
