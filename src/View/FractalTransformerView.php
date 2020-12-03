@@ -119,7 +119,7 @@ class FractalTransformerView extends JsonView
      */
     protected function getTransformer($var, $varName = false)
     {
-        $_transform = $this->get('_transform');
+        $_transform = $this->getConfig('_transform');
         $transformerClass = $varName
             ? Hash::get((array)$_transform, $varName)
             : $_transform;
@@ -165,9 +165,9 @@ class FractalTransformerView extends JsonView
         }
 
         if (is_array($var) || $var instanceof Query || $var instanceof ResultSet) {
-            $resource = new Collection($var, $transformer, $this->get('_resourceKey'));
+            $resource = new Collection($var, $transformer, $this->getConfig('_resourceKey'));
         } elseif ($var instanceof EntityInterface) {
-            $resource = new Item($var, $transformer, $this->get('_resourceKey'));
+            $resource = new Item($var, $transformer, $this->getConfig('_resourceKey'));
         } else {
             throw new Exception('Unserializable variable');
         }
@@ -187,7 +187,7 @@ class FractalTransformerView extends JsonView
         $data = parent::_dataToSerialize($serialize);
 
         $serializer = $this->getSerializer();
-        $includes = $this->get('_includes');
+        $includes = $this->getConfig('_includes');
         $manager = new Manager();
         $manager->setSerializer($serializer);
 
